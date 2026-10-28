@@ -1,0 +1,24 @@
+# Odvisnosti
+node_modules/
+
+# Okoljske spremenljivke in skrivnosti
+.env
+.env.*
+!.env.example
+
+# Gradnja
+dist/
+build/
+
+# Dnevniki
+*.log
+npm-debug.log*
+
+# Testi
+coverage/
+
+# Sistemske datoteke
+.DS_Store
+
+# Urejevalniki
+.idea/
