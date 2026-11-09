@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const MongoStore = require('connect-mongo').default;
 
+const authRoutes = require('./routes/auth');
+
 function createApp() {
   const app = express();
 
@@ -26,6 +28,8 @@ function createApp() {
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
   });
+
+  app.use('/api/auth', authRoutes);
 
   return app;
 }
