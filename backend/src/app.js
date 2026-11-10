@@ -3,6 +3,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo').default;
 
 const authRoutes = require('./routes/auth');
+const vajeRoutes = require('./routes/vaje');
 
 function createApp() {
   const app = express();
@@ -30,6 +31,7 @@ function createApp() {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/vaje', vajeRoutes);
 
   return app;
 }
