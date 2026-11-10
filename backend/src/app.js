@@ -4,6 +4,7 @@ const MongoStore = require('connect-mongo').default;
 
 const authRoutes = require('./routes/auth');
 const vajeRoutes = require('./routes/vaje');
+const nacrtiRoutes = require('./routes/nacrti');
 
 function createApp() {
   const app = express();
@@ -32,6 +33,7 @@ function createApp() {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/vaje', vajeRoutes);
+  app.use('/api/nacrti', nacrtiRoutes);
 
   return app;
 }
