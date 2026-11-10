@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import Registracija from './pages/Registracija.jsx'
 import Prijava from './pages/Prijava.jsx'
+import KnjiznicaVaj from './pages/KnjiznicaVaj.jsx'
 
 const MENIJI = {
   clan: [
@@ -27,7 +28,6 @@ const OZNAKE = { clan: 'član', trener: 'trener', admin: 'skrbnik' }
 
 // [pot, dovoljene vloge, naslov]; prave strani pridejo v naslednjih issuih
 const STRANI = [
-  ['/vaje', ['clan', 'admin'], 'Knjižnica vaj'],
   ['/nacrti', ['clan', 'trener'], 'Načrti'],
   ['/nov-trening', ['clan'], 'Nov trening'],
   ['/zgodovina', ['clan'], 'Zgodovina treningov'],
@@ -108,6 +108,14 @@ export default function App() {
           <Route path="/" element={<Domov />} />
           <Route path="/registracija" element={<Registracija />} />
           <Route path="/prijava" element={<Prijava />} />
+          <Route
+            path="/vaje"
+            element={
+              <ProtectedRoute vloge={['clan', 'admin']}>
+                <KnjiznicaVaj />
+              </ProtectedRoute>
+            }
+          />
           {STRANI.map(([pot, vloge, naslov]) => (
             <Route
               key={pot}

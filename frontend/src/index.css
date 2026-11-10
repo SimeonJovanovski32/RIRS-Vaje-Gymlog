@@ -177,3 +177,100 @@ a {
   padding: 6px 14px;
   font-size: 0.9rem;
 }
+
+.siroka {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.naslov-strani {
+  margin: 0 0 20px;
+  font-size: 1.6rem;
+}
+
+.filtri {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.filter {
+  padding: 8px 18px;
+  background: #162033;
+  color: #f1f5f9;
+  border: 1px solid #2f4264;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.filter:hover {
+  border-color: #f97316;
+}
+
+.filter.aktiven {
+  background: #f97316;
+  border-color: #f97316;
+  color: #fff;
+  font-weight: 600;
+}
+
+.tabela {
+  border: 1px solid #2f4264;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #162033;
+}
+
+.vrstica {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 14px 18px;
+  border: 0;
+  border-bottom: 1px solid #2f4264;
+  background: transparent;
+  color: #f1f5f9;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.vrstica.glava {
+  background: #1f2d47;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.vrstica.klik {
+  cursor: pointer;
+}
+
+.vrstica.klik:hover {
+  background: #1b2740;
+}
+
+.vrstica .ime {
+  font-weight: 600;
+}
+
+.oznaka {
+  display: inline-block;
+  padding: 2px 12px;
+  border: 1px solid #f97316;
+  background: #3a2412;
+  color: #fb923c;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.opis {
+  padding: 14px 18px;
+  background: #0e1729;
+  color: #cbd5e1;
+  border-bottom: 1px solid #2f4264;
+}
