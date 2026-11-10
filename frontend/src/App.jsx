@@ -1,36 +1,100 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { useAuth } from './AuthContext.jsx'
+import ProtectedRoute from './ProtectedRoute.jsx'
 import Registracija from './pages/Registracija.jsx'
+import Prijava from './pages/Prijava.jsx'
 
-function povezava({ isActive }) {
+const MENIJI = {
+  clan: [
+    ['/vaje', 'Vaje'],
+    ['/nacrti', 'Moji načrti'],
+    ['/nov-trening', 'Nov trening'],
+    ['/zgodovina', 'Zgodovina'],
+    ['/napredek', 'Napredek'],
+  ],
+  trener: [
+    ['/nacrti', 'Moji načrti'],
+    ['/clani', 'Člani'],
+    ['/treningi-clanov', 'Treningi članov'],
+  ],
+  admin: [
+    ['/uporabniki', 'Uporabniki'],
+    ['/vaje', 'Vaje'],
+  ],
+}
+
+const OZNAKE = { clan: 'član', trener: 'trener', admin: 'skrbnik' }
+
+// [pot, dovoljene vloge, naslov]; prave strani pridejo v naslednjih issuih
+const STRANI = [
+  ['/vaje', ['clan', 'admin'], 'Knjižnica vaj'],
+  ['/nacrti', ['clan', 'trener'], 'Načrti'],
+  ['/nov-trening', ['clan'], 'Nov trening'],
+  ['/zgodovina', ['clan'], 'Zgodovina treningov'],
+  ['/napredek', ['clan'], 'Napredek po vaji'],
+  ['/clani', ['trener'], 'Člani'],
+  ['/treningi-clanov', ['trener'], 'Treningi članov'],
+  ['/uporabniki', ['admin'], 'Upravljanje uporabnikov'],
+]
+
+function razred({ isActive }) {
   return isActive ? 'aktiven' : ''
 }
 
+function Vrh() {
+  const { user, odjava } = useAuth()
+  const navigate = useNavigate()
+
+  const povezave = user
+    ? MENIJI[user.vloga] || []
+    : [
+        ['/registracija', 'Registracija'],
+        ['/prijava', 'Prijava'],
+      ]
+
+  async function onOdjava() {
+    await odjava()
+    navigate('/prijava')
+  }
+
+  return (
+    <header className="vrh">
+      <span className="logo">GymLog</span>
+      <nav>
+        <NavLink to="/" end className={razred}>Domov</NavLink>
+        {povezave.map(([pot, ime]) => (
+          <NavLink key={pot} to={pot} className={razred}>{ime}</NavLink>
+        ))}
+      </nav>
+      {user && (
+        <div className="uporabnik">
+          <span>{user.ime} ({OZNAKE[user.vloga]})</span>
+          <button className="gumb gumb-mali" onClick={onOdjava}>Odjava</button>
+        </div>
+      )}
+    </header>
+  )
+}
+
 function Domov() {
-  const [stanje, setStanje] = useState('preverjam...')
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => res.json())
-      .then((data) => setStanje(data.status))
-      .catch(() => setStanje('backend ni dosegljiv'))
-  }, [])
-
+  const { user } = useAuth()
   return (
     <div className="kartica">
       <h1>GymLog</h1>
-      <p className="podnozje">Stanje API-ja: {stanje}</p>
+      <p className="podnozje">
+        {user
+          ? `Pozdravljeni, ${user.ime}. Prijavljeni ste kot ${OZNAKE[user.vloga]}.`
+          : 'Prijavite se ali ustvarite račun.'}
+      </p>
     </div>
   )
 }
 
-function Prijava() {
-  const { state } = useLocation()
+function Placeholder({ naslov }) {
   return (
     <div className="kartica">
-      <h1>Prijava</h1>
-      {state?.registriran && <p className="uspeh">Registracija je uspela. Prijavite se.</p>}
-      <p className="podnozje">Prijavni obrazec bo dodan v US-02.</p>
+      <h1>{naslov}</h1>
+      <p className="podnozje">Ta stran še ni na voljo.</p>
     </div>
   )
 }
@@ -38,19 +102,23 @@ function Prijava() {
 export default function App() {
   return (
     <div>
-      <header className="vrh">
-        <span className="logo">GymLog</span>
-        <nav>
-          <NavLink to="/" end className={povezava}>Domov</NavLink>
-          <NavLink to="/registracija" className={povezava}>Registracija</NavLink>
-          <NavLink to="/prijava" className={povezava}>Prijava</NavLink>
-        </nav>
-      </header>
+      <Vrh />
       <main className="stran">
         <Routes>
           <Route path="/" element={<Domov />} />
           <Route path="/registracija" element={<Registracija />} />
           <Route path="/prijava" element={<Prijava />} />
+          {STRANI.map(([pot, vloge, naslov]) => (
+            <Route
+              key={pot}
+              path={pot}
+              element={
+                <ProtectedRoute vloge={vloge}>
+                  <Placeholder naslov={naslov} />
+                </ProtectedRoute>
+              }
+            />
+          ))}
         </Routes>
       </main>
     </div>
