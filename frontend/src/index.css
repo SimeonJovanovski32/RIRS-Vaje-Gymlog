@@ -1,111 +1,163 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: #0b1220;
+  color: #f1f5f9;
+  min-height: 100vh;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+a {
+  color: #fb923c;
+}
+
+.vrh {
   display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  align-items: center;
+  gap: 32px;
+  padding: 0 24px;
+  height: 56px;
+  background: #0f172a;
+  border-bottom: 2px solid #f97316;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.logo {
+  font-weight: 700;
+  font-size: 1.25rem;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+.vrh nav {
+  display: flex;
+  gap: 20px;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+
+.vrh nav a {
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 3px solid transparent;
 }
-p {
+
+.vrh nav a:hover {
+  color: #f1f5f9;
+}
+
+.vrh nav a.aktiven {
+  color: #f97316;
+  border-bottom-color: #f97316;
+  font-weight: 600;
+}
+
+.stran {
+  padding: 32px 16px;
+}
+
+.kartica {
+  max-width: 420px;
+  margin: 24px auto;
+  background: #162033;
+  border: 1px solid #2f4264;
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.kartica h1 {
   margin: 0;
+  font-size: 1.6rem;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+.kartica h1::after {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 3px;
+  background: #f97316;
+  margin-top: 8px;
+  border-radius: 2px;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.polje {
+  margin-top: 18px;
+}
+
+.polje label {
+  display: block;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.polje input {
+  width: 100%;
+  padding: 11px 12px;
+  background: #0e1729;
+  color: #f1f5f9;
+  border: 1px solid #2f4264;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.polje input:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
+}
+
+.napaka-polje {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 6px 0 0;
+}
+
+.napaka {
+  background: #3b1717;
+  border: 1px solid #f87171;
+  color: #fecaca;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 18px;
+}
+
+.uspeh {
+  background: #10301f;
+  border: 1px solid #22c55e;
+  color: #86efac;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 18px;
+}
+
+.gumb {
+  width: 100%;
+  margin-top: 22px;
+  padding: 12px;
+  background: #f97316;
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gumb:hover {
+  background: #fb923c;
+}
+
+.gumb:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.podnozje {
+  margin-top: 18px;
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
