@@ -107,4 +107,31 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
+
+// Brisanje osnutka: samo trener avtor, samo v stanju osnutek.
+router.delete('/:id', requireRole('trener'), async (req, res) => {
+  if (!OBJECT_ID.test(req.params.id)) {
+    return res.status(404).json({ napaka: 'Načrt ne obstaja' });
+  }
+
+  try {
+    const nacrt = await Nacrt.findById(req.params.id);
+    if (!nacrt) {
+      return res.status(404).json({ napaka: 'Načrt ne obstaja' });
+    }
+    if (!nacrt.trenerId.equals(req.user._id)) {
+      return res.status(403).json({ napaka: 'Nimate pravic za to dejanje' });
+    }
+    if (nacrt.stanje !== 'osnutek') {
+      return res.status(409).json({ napaka: 'Izbrisati je mogoče samo osnutek načrta' });
+    }
+
+    await nacrt.deleteOne();
+    return res.json({ sporocilo: 'Načrt je izbrisan' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ napaka: 'Napaka strežnika' });
+  }
+});
+
 module.exports = router;
