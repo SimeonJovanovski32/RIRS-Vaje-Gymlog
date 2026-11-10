@@ -60,4 +60,88 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/login', async (req, res) => {
+  const { email, geslo } = req.body || {};
+  const NAPACNI_PODATKI = 'Napačen e-poštni naslov ali geslo';
+
+  if (typeof email !== 'string' || typeof geslo !== 'string' || !email || !geslo) {
+    return res.status(401).json({ napaka: NAPACNI_PODATKI });
+  }
+
+  try {
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+
+    // isto sporočilo za neobstoječ račun in napačno geslo
+    if (!user) {
+      return res.status(401).json({ napaka: NAPACNI_PODATKI });
+    }
+
+    const geslo_ok = await bcrypt.compare(geslo, user.passwordHash);
+    if (!geslo_ok) {
+      return res.status(401).json({ napaka: NAPACNI_PODATKI });
+    }
+
+    if (user.blokiran) {
+      return res.status(403).json({ napaka: 'Račun je blokiran' });
+    }
+
+    // nova seja ob prijavi, da se prepreči prevzem stare seje
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ napaka: 'Napaka strežnika' });
+      }
+      req.session.userId = user._id.toString();
+      req.session.save((err2) => {
+        if (err2) {
+          console.error(err2);
+          return res.status(500).json({ napaka: 'Napaka strežnika' });
+        }
+        return res.json({
+          id: user._id,
+          ime: user.ime,
+          email: user.email,
+          vloga: user.vloga,
+        });
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ napaka: 'Napaka strežnika' });
+  }
+});
+
+router.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ napaka: 'Napaka strežnika' });
+    }
+    res.clearCookie('connect.sid');
+    return res.json({ sporocilo: 'Odjavljen' });
+  });
+});
+
+router.get('/me', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ napaka: 'Niste prijavljeni' });
+  }
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user || user.blokiran) {
+      req.session.destroy(() => {});
+      return res.status(401).json({ napaka: 'Niste prijavljeni' });
+    }
+    return res.json({
+      id: user._id,
+      ime: user.ime,
+      email: user.email,
+      vloga: user.vloga,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ napaka: 'Napaka strežnika' });
+  }
+});
+
 module.exports = router;
