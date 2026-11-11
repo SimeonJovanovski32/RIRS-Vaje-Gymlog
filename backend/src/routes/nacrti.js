@@ -175,4 +175,33 @@ router.post('/:id/dodeli', requireRole('trener'), async (req, res) => {
   }
 });
 
+
+// Sprejem načrta: samo član, ki mu je načrt dodeljen, samo v stanju dodeljen.
+router.post('/:id/sprejmi', requireRole('clan'), async (req, res) => {
+  if (!OBJECT_ID.test(req.params.id)) {
+    return res.status(404).json({ napaka: 'Načrt ne obstaja' });
+  }
+
+  try {
+    const nacrt = await Nacrt.findById(req.params.id);
+    if (!nacrt) {
+      return res.status(404).json({ napaka: 'Načrt ne obstaja' });
+    }
+    if (!nacrt.clanId || !nacrt.clanId.equals(req.user._id)) {
+      return res.status(403).json({ napaka: 'Nimate pravic za to dejanje' });
+    }
+    if (nacrt.stanje !== 'dodeljen') {
+      return res.status(409).json({ napaka: 'Sprejeti je mogoče samo dodeljen načrt' });
+    }
+
+    nacrt.stanje = 'aktiven';
+    await nacrt.save();
+
+    return res.json(nacrt);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ napaka: 'Napaka strežnika' });
+  }
+});
+
 module.exports = router;
