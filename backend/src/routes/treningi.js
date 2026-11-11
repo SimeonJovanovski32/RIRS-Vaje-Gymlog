@@ -106,14 +106,48 @@ router.post('/', requireRole('clan'), async (req, res) => {
   }
 });
 
-// Seznam treningov: član vidi samo svoje, najnovejše na vrhu.
+// Seznam treningov: član vidi samo svoje, najnovejše na vrhu, 10 na stran.
+// /api/treningi?stran=1 vrne { treningi, stran, strani, skupaj }.
 router.get('/', requireRole('clan'), async (req, res) => {
+  const NA_STRAN = 10;
+  const stran = Math.max(1, parseInt(req.query.stran, 10) || 1);
+
   try {
-    const treningi = await Trening.find({ clanId: req.user._id })
+    const filter = { clanId: req.user._id };
+    const skupaj = await Trening.countDocuments(filter);
+    const strani = Math.max(1, Math.ceil(skupaj / NA_STRAN));
+
+    const treningi = await Trening.find(filter)
       .sort({ datum: -1, createdAt: -1 })
+      .skip((stran - 1) * NA_STRAN)
+      .limit(NA_STRAN)
       .populate('zapisi.vajaId', 'naziv misicnaSkupina')
       .populate('nacrtId', 'naziv');
-    return res.json(treningi);
+
+    return res.json({ treningi, stran, strani, skupaj });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ napaka: 'Napaka strežnika' });
+  }
+});
+
+// En trening s podrobnostmi: samo lastnik.
+router.get('/:id', requireRole('clan'), async (req, res) => {
+  if (!OBJECT_ID.test(req.params.id)) {
+    return res.status(404).json({ napaka: 'Trening ne obstaja' });
+  }
+
+  try {
+    const trening = await Trening.findById(req.params.id)
+      .populate('zapisi.vajaId', 'naziv misicnaSkupina')
+      .populate('nacrtId', 'naziv');
+    if (!trening) {
+      return res.status(404).json({ napaka: 'Trening ne obstaja' });
+    }
+    if (!trening.clanId.equals(req.user._id)) {
+      return res.status(403).json({ napaka: 'Nimate pravic za to dejanje' });
+    }
+    return res.json(trening);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ napaka: 'Napaka strežnika' });
