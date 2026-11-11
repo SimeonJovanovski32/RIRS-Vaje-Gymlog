@@ -2,6 +2,7 @@ const express = require('express');
 const Trening = require('../models/Trening');
 const Nacrt = require('../models/Nacrt');
 const Vaja = require('../models/Vaja');
+const { zaznajRekorde } = require('../rekordi');
 const { requireRole } = require('../middleware/auth');
 
 const router = express.Router();
@@ -81,10 +82,17 @@ router.post('/', requireRole('clan'), async (req, res) => {
       nacrtVrednost = nacrt._id;
     }
 
+    const rekordi = await zaznajRekorde({
+      clanId: req.user._id,
+      zapisi,
+      datum: datumVrednost,
+    });
+
     const trening = await Trening.create({
       clanId: req.user._id,
       nacrtId: nacrtVrednost,
       datum: datumVrednost,
+      rekordi,
       zapisi: zapisi.map((z) => ({
         vajaId: z.vajaId,
         serije: z.serije.map((s) => ({ teza: s.teza, ponovitve: s.ponovitve })),
