@@ -511,3 +511,21 @@ a.gumb-povezava,
   font-size: 0.75rem;
   font-weight: 700;
 }
+
+.zgodovina-vrstica {
+  grid-template-columns: 1.2fr 0.6fr 1.6fr 1fr;
+}
+
+.strani {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 22px;
+  color: #94a3b8;
+}
+
+.strani .gumb-sek:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
