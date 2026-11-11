@@ -451,3 +451,46 @@ a.gumb-povezava,
   outline: none;
   border-color: #f97316;
 }
+
+.vrstica-polj {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 4px;
+}
+
+.vrstica-polj .polje {
+  min-width: 220px;
+}
+
+.izbira {
+  padding: 10px;
+  background: #0e1729;
+  color: #f1f5f9;
+  border: 1px solid #2f4264;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  min-width: 240px;
+}
+
+.izbira:focus,
+.vrstica-polj input:focus {
+  outline: none;
+  border-color: #f97316;
+}
+
+.st-serije {
+  min-width: 80px;
+  color: #fb923c;
+  font-weight: 600;
+  align-self: center;
+}
+
+.zadnji {
+  margin-top: 36px;
+}
+
+.zadnji h2 {
+  font-size: 1.15rem;
+  margin-bottom: 14px;
+}

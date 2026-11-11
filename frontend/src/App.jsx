@@ -6,6 +6,7 @@ import Prijava from './pages/Prijava.jsx'
 import KnjiznicaVaj from './pages/KnjiznicaVaj.jsx'
 import Nacrti from './pages/Nacrti.jsx'
 import NacrtForm from './pages/NacrtForm.jsx'
+import NovTrening from './pages/NovTrening.jsx'
 
 const MENIJI = {
   clan: [
@@ -30,7 +31,6 @@ const OZNAKE = { clan: 'član', trener: 'trener', admin: 'skrbnik' }
 
 // [pot, dovoljene vloge, naslov]; prave strani pridejo v naslednjih issuih
 const STRANI = [
-  ['/nov-trening', ['clan'], 'Nov trening'],
   ['/zgodovina', ['clan'], 'Zgodovina treningov'],
   ['/napredek', ['clan'], 'Napredek po vaji'],
   ['/clani', ['trener'], 'Člani'],
@@ -130,6 +130,14 @@ export default function App() {
             element={
               <ProtectedRoute vloge={['trener']}>
                 <NacrtForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/nov-trening"
+            element={
+              <ProtectedRoute vloge={['clan']}>
+                <NovTrening />
               </ProtectedRoute>
             }
           />
