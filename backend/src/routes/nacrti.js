@@ -1,6 +1,7 @@
 const express = require('express');
 const Nacrt = require('../models/Nacrt');
 const Vaja = require('../models/Vaja');
+const User = require('../models/User');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
@@ -128,6 +129,46 @@ router.delete('/:id', requireRole('trener'), async (req, res) => {
 
     await nacrt.deleteOne();
     return res.json({ sporocilo: 'Načrt je izbrisan' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ napaka: 'Napaka strežnika' });
+  }
+});
+
+
+// Dodelitev načrta članu: samo trener avtor, samo osnutek, samo član, ki ni blokiran.
+router.post('/:id/dodeli', requireRole('trener'), async (req, res) => {
+  if (!OBJECT_ID.test(req.params.id)) {
+    return res.status(404).json({ napaka: 'Načrt ne obstaja' });
+  }
+
+  const { clanId } = req.body || {};
+  if (typeof clanId !== 'string' || !OBJECT_ID.test(clanId)) {
+    return res.status(400).json({ napaka: 'Izberite člana' });
+  }
+
+  try {
+    const nacrt = await Nacrt.findById(req.params.id);
+    if (!nacrt) {
+      return res.status(404).json({ napaka: 'Načrt ne obstaja' });
+    }
+    if (!nacrt.trenerId.equals(req.user._id)) {
+      return res.status(403).json({ napaka: 'Nimate pravic za to dejanje' });
+    }
+    if (nacrt.stanje !== 'osnutek') {
+      return res.status(409).json({ napaka: 'Dodeliti je mogoče samo osnutek načrta' });
+    }
+
+    const clan = await User.findById(clanId);
+    if (!clan || clan.vloga !== 'clan' || clan.blokiran) {
+      return res.status(400).json({ napaka: 'Izbran uporabnik ni na voljo kot član' });
+    }
+
+    nacrt.clanId = clan._id;
+    nacrt.stanje = 'dodeljen';
+    await nacrt.save();
+
+    return res.json(nacrt);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ napaka: 'Napaka strežnika' });
