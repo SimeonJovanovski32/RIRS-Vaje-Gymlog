@@ -426,3 +426,28 @@ a.gumb-povezava,
   align-items: center;
   gap: 12px;
 }
+
+.dodeli {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #2f4264;
+}
+
+.dodeli select {
+  flex: 1;
+  max-width: 340px;
+  padding: 10px;
+  background: #0e1729;
+  color: #f1f5f9;
+  border: 1px solid #2f4264;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.dodeli select:focus {
+  outline: none;
+  border-color: #f97316;
+}
