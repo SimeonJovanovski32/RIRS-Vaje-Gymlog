@@ -36,8 +36,8 @@ export default function NovTrening() {
 
   function naloziTreninge() {
     fetch('/api/treningi')
-      .then((res) => (res.ok ? res.json() : []))
-      .then(setTreningi)
+      .then((res) => (res.ok ? res.json() : { treningi: [] }))
+      .then((data) => setTreningi(data.treningi || []))
       .catch(() => setTreningi([]))
   }
 
