@@ -21,6 +21,7 @@ export default function Nacrti() {
   const [sporocilo, setSporocilo] = useState('')
 
   const jeTrener = user?.vloga === 'trener'
+  const jeClan = user?.vloga === 'clan'
 
   useEffect(() => {
     fetch('/api/nacrti')
@@ -90,6 +91,24 @@ export default function Nacrti() {
     }
   }
 
+  async function onSprejmi(nacrt) {
+    setNapake({ ...napake, [nacrt._id]: '' })
+    setSporocilo('')
+
+    try {
+      const res = await fetch(`/api/nacrti/${nacrt._id}/sprejmi`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.napaka || 'Načrta ni mogoče sprejeti')
+
+      setNacrti(
+        nacrti.map((n) => (n._id === nacrt._id ? { ...n, stanje: 'aktiven' } : n))
+      )
+      setSporocilo(`Načrt »${nacrt.naziv}« je sprejet in je zdaj aktiven.`)
+    } catch (err) {
+      setNapake({ ...napake, [nacrt._id]: err.message })
+    }
+  }
+
   return (
     <div className="siroka">
       <div className="glava-strani">
@@ -121,6 +140,11 @@ export default function Nacrti() {
               {jeTrener && n.stanje === 'osnutek' && (
                 <button className="gumb-sek nevaren" onClick={() => onIzbrisi(n)}>
                   Izbriši
+                </button>
+              )}
+              {jeClan && n.stanje === 'dodeljen' && (
+                <button className="gumb gumb-povezava" onClick={() => onSprejmi(n)}>
+                  Sprejmi
                 </button>
               )}
             </div>
