@@ -19,6 +19,9 @@ function danes() {
 const prazna = () => ({ teza: '', ponovitve: '' })
 const prazenZapis = () => ({ vajaId: '', serije: [prazna()] })
 
+// ID vaje je lahko niz ali že naložen objekt (populate)
+const idVaje = (v) => (v && typeof v === 'object' ? v._id : v)
+
 export default function NovTrening() {
   const [vaje, setVaje] = useState([])
   const [nacrti, setNacrti] = useState([])
@@ -28,6 +31,7 @@ export default function NovTrening() {
   const [zapisi, setZapisi] = useState([prazenZapis()])
   const [napake, setNapake] = useState([])
   const [uspeh, setUspeh] = useState('')
+  const [novirekordi, setNoviRekordi] = useState([])
   const [posilja, setPosilja] = useState(false)
 
   function naloziTreninge() {
@@ -78,10 +82,13 @@ export default function NovTrening() {
     })
   }
 
+  const imeVaje = (id) => vaje.find((v) => v._id === idVaje(id))?.naziv || 'neznana vaja'
+
   async function onSubmit(e) {
     e.preventDefault()
     setNapake([])
     setUspeh('')
+    setNoviRekordi([])
     setPosilja(true)
 
     const telo = {
@@ -106,6 +113,9 @@ export default function NovTrening() {
       const data = await res.json()
       if (res.status === 201) {
         setUspeh('Trening je shranjen.')
+        setNoviRekordi(
+          (data.rekordi || []).map((r) => ({ naziv: imeVaje(r.vajaId), teza: r.teza }))
+        )
         setZapisi([prazenZapis()])
         setNacrtId('')
         setDatum(danes())
@@ -120,11 +130,20 @@ export default function NovTrening() {
     }
   }
 
-  const imeVaje = (id) => vaje.find((v) => v._id === id)?.naziv || 'neznana vaja'
-
   return (
     <div className="siroka">
       <h1 className="naslov-strani">Nov trening</h1>
+
+      {uspeh && (
+        <div className="uspeh">
+          <div>{uspeh}</div>
+          {novirekordi.map((r, k) => (
+            <div className="rekord-sporocilo" key={k}>
+              Nov osebni rekord: {r.naziv} – {r.teza} kg
+            </div>
+          ))}
+        </div>
+      )}
 
       <form onSubmit={onSubmit} noValidate>
         <div className="vrstica-polj">
@@ -219,7 +238,6 @@ export default function NovTrening() {
             ))}
           </div>
         )}
-        {uspeh && <p className="uspeh">{uspeh}</p>}
 
         <div className="akcije">
           <button className="gumb gumb-povezava" type="submit" disabled={posilja}>
@@ -231,20 +249,26 @@ export default function NovTrening() {
       {treningi.length > 0 && (
         <div className="zadnji">
           <h2>Zadnji treningi</h2>
-          {treningi.slice(0, 5).map((t) => (
-            <div className="nacrt" key={t._id}>
-              <div className="nacrt-glava">
-                <h2>{new Date(t.datum).toLocaleDateString('sl-SI')}</h2>
-                {t.nacrtId && <span className="oznaka">{t.nacrtId.naziv}</span>}
+          {treningi.slice(0, 5).map((t) => {
+            const rekordIdji = (t.rekordi || []).map((r) => String(idVaje(r.vajaId)))
+            return (
+              <div className="nacrt" key={t._id}>
+                <div className="nacrt-glava">
+                  <h2>{new Date(t.datum).toLocaleDateString('sl-SI')}</h2>
+                  {t.nacrtId && <span className="oznaka">{t.nacrtId.naziv}</span>}
+                </div>
+                {t.zapisi.map((z, i) => (
+                  <p className="nacrt-dan" key={i}>
+                    <strong>{z.vajaId?.naziv || imeVaje(z.vajaId)}:</strong>{' '}
+                    {z.serije.map((s) => `${s.teza} kg × ${s.ponovitve}`).join(', ')}
+                    {rekordIdji.includes(String(idVaje(z.vajaId))) && (
+                      <span className="rekord"> REKORD</span>
+                    )}
+                  </p>
+                ))}
               </div>
-              {t.zapisi.map((z, i) => (
-                <p className="nacrt-dan" key={i}>
-                  <strong>{z.vajaId?.naziv || imeVaje(z.vajaId)}:</strong>{' '}
-                  {z.serije.map((s) => `${s.teza} kg × ${s.ponovitve}`).join(', ')}
-                </p>
-              ))}
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
