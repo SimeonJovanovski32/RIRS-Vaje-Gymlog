@@ -13,9 +13,14 @@ export default function Nacrti() {
   const { user } = useAuth()
   const { state } = useLocation()
   const [nacrti, setNacrti] = useState([])
+  const [clani, setClani] = useState([])
+  const [izbrani, setIzbrani] = useState({})
+  const [napake, setNapake] = useState({})
   const [nalaganje, setNalaganje] = useState(true)
   const [napaka, setNapaka] = useState('')
   const [sporocilo, setSporocilo] = useState('')
+
+  const jeTrener = user?.vloga === 'trener'
 
   useEffect(() => {
     fetch('/api/nacrti')
@@ -28,7 +33,14 @@ export default function Nacrti() {
       .finally(() => setNalaganje(false))
   }, [])
 
-  const jeTrener = user?.vloga === 'trener'
+  // člane za izbiro naložimo samo trenerju
+  useEffect(() => {
+    if (!jeTrener) return
+    fetch('/api/clani')
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setClani)
+      .catch(() => setClani([]))
+  }, [jeTrener])
 
   async function onIzbrisi(nacrt) {
     if (!window.confirm(`Izbrišem načrt »${nacrt.naziv}«? Tega ni mogoče razveljaviti.`)) {
@@ -44,6 +56,37 @@ export default function Nacrti() {
       setSporocilo('Načrt je izbrisan.')
     } catch (err) {
       setNapaka(err.message)
+    }
+  }
+
+  async function onDodeli(nacrt) {
+    const clanId = izbrani[nacrt._id]
+    setNapake({ ...napake, [nacrt._id]: '' })
+    setSporocilo('')
+
+    if (!clanId) {
+      setNapake({ ...napake, [nacrt._id]: 'Izberite člana' })
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/nacrti/${nacrt._id}/dodeli`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clanId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.napaka || 'Načrta ni mogoče dodeliti')
+
+      const clan = clani.find((c) => c._id === clanId)
+      setNacrti(
+        nacrti.map((n) =>
+          n._id === nacrt._id ? { ...n, stanje: 'dodeljen', clanId: clanId } : n
+        )
+      )
+      setSporocilo(`Načrt je dodeljen članu ${clan ? clan.ime : ''}.`)
+    } catch (err) {
+      setNapake({ ...napake, [nacrt._id]: err.message })
     }
   }
 
@@ -94,6 +137,26 @@ export default function Nacrti() {
                 .join(', ')}
             </p>
           ))}
+
+          {jeTrener && n.stanje === 'osnutek' && (
+            <div className="dodeli">
+              <select
+                value={izbrani[n._id] || ''}
+                onChange={(e) => setIzbrani({ ...izbrani, [n._id]: e.target.value })}
+              >
+                <option value="">Izberite člana</option>
+                {clani.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.ime} ({c.email})
+                  </option>
+                ))}
+              </select>
+              <button className="gumb gumb-povezava" onClick={() => onDodeli(n)}>
+                Dodeli
+              </button>
+            </div>
+          )}
+          {napake[n._id] && <p className="napaka">{napake[n._id]}</p>}
         </div>
       ))}
     </div>
