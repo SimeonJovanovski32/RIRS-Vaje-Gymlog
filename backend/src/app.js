@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const vajeRoutes = require('./routes/vaje');
 const nacrtiRoutes = require('./routes/nacrti');
 const claniRoutes = require('./routes/clani');
+const treningiRoutes = require('./routes/treningi');
 
 function createApp() {
   const app = express();
@@ -36,6 +37,7 @@ function createApp() {
   app.use('/api/vaje', vajeRoutes);
   app.use('/api/nacrti', nacrtiRoutes);
   app.use('/api/clani', claniRoutes);
+  app.use('/api/treningi', treningiRoutes);
 
   return app;
 }
